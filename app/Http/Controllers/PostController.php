@@ -16,21 +16,23 @@ class PostController extends Controller
         ]);
     }
 
+public function store(PostRequest $request)
+{
+    $imagePath = null;
 
-    public function store(PostRequest $request)
-    {
-    
-    $post=Post::create([
-        'user_id'=>$request->user()->id,
-        'content'=>$request->input('content'),
-        'image'=>$request->input('image'),
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('posts', 'public');
+    }
 
+    $post = Post::create([
+        'user_id' => $request->user()->id,
+        'content' => $request->input('content'),
+        'image' => $imagePath,
     ]);
 
     return response()->json([
-        'message'=>'Post created successfully',
-        'post'=>$post->load('user')
-    ],201);
-
-    }
+        'message' => 'Post created successfully',
+        'post' => $post->load('user'),
+    ], 201);
+}
 }

@@ -23,8 +23,8 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content'=>['required','string'],
-            'image'=>['nullable','string']
+            'content'=>['nullable','string','max:5000'],
+            'image'=>['nullable','image','mimes:jpg,jepg,png,webp','max:2048']
         ];
     }
 }

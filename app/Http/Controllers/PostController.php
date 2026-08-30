@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::with('user')->latest()->get();
+        $posts = Post::with('user')
+            ->withCount('likes')
+            ->withExists([
+                'likes as is_liked' => function ($query) use ($request) {
+                    $query->where('user_id', $request->user()->id);
+                }
+            ])
+            ->latest()
+            ->get();
 
         return response()->json([
             'posts' => $posts

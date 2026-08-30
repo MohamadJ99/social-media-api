@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Post;
+use App\Models\Like;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -36,5 +37,9 @@ class User extends Authenticatable
     public function posts():HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function likes():HasMany{
+        return $this->hasMany(Like::class);
     }
 }

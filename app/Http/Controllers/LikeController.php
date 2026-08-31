@@ -2,37 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Post;
+use App\Models\Comment;
 use App\Models\Like;
+use App\Models\Post;
+use Illuminate\Http\Request;
+
 class LikeController extends Controller
 {
-     public function store(Request $request, Post $post)
+    public function storePostLike(Request $request, Post $post)
     {
-        $user = $request->user();
+        return $this->storeLike($request, $post);
+    }
 
-        $like = Like::firstOrCreate([
-            'user_id' => $user->id,
-            'post_id' => $post->id,
+    public function destroyPostLike(Request $request, Post $post)
+    {
+        return $this->destroyLike($request, $post);
+    }
+
+    public function storeCommentLike(Request $request, Comment $comment)
+    {
+        return $this->storeLike($request, $comment);
+    }
+
+    public function destroyCommentLike(Request $request, Comment $comment)
+    {
+        return $this->destroyLike($request, $comment);
+    }
+
+    private function storeLike(Request $request, Post|Comment $likeable)
+    {
+        Like::firstOrCreate([
+            'user_id' => $request->user()->id,
+            'likeable_id' => $likeable->id,
+            'likeable_type' => $likeable::class,
         ]);
 
         return response()->json([
-            'message' => 'Post liked successfully',
-            'likes_count' => $post->likes()->count(),
+            'message' => 'Liked successfully',
+            'likes_count' => $likeable->likes()->count(),
         ]);
     }
 
-    public function destroy(Request $request, Post $post)
+    private function destroyLike(Request $request, Post|Comment $likeable)
     {
-        $user = $request->user();
-
-        Like::where('user_id', $user->id)
-            ->where('post_id', $post->id)
+        Like::where('user_id', $request->user()->id)
+            ->where('likeable_id', $likeable->id)
+            ->where('likeable_type', $likeable::class)
             ->delete();
 
         return response()->json([
-            'message' => 'Post unliked successfully',
-            'likes_count' => $post->likes()->count(),
+            'message' => 'Unliked successfully',
+            'likes_count' => $likeable->likes()->count(),
         ]);
     }
 }

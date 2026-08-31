@@ -5,21 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Comment;
 use App\Http\Requests\CommentRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class CommentController extends Controller
 {
-    public function index(Post $post)
+
+    public function index(Request $request, Post $post)
     {
+        $userId = $request->user()->id;
+
         $comments = $post->comments()
             ->whereNull('parent_id')
             ->with([
                 'user:id,name,email',
-                'replies' => function ($query) {
+                'replies' => function ($query) use ($userId) {
                     $query
                         ->with('user:id,name,email')
+                        ->withCount('likes')
+                        ->withExists([
+                            'likes as is_liked' => fn($query) =>
+                            $query->where('user_id', $userId),
+                        ])
                         ->latest();
                 },
+            ])
+            ->withCount('likes')
+            ->withExists([
+                'likes as is_liked' => fn($query) =>
+                $query->where('user_id', $userId),
             ])
             ->latest()
             ->get();
@@ -28,6 +42,8 @@ class CommentController extends Controller
             'comments' => $comments,
         ]);
     }
+
+
 
     public function store(CommentRequest $request, Post $post)
     {

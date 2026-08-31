@@ -12,9 +12,9 @@ class CommentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-         return $this->user() !== null;
+        return $this->user() !== null;
     }
-    
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -28,6 +28,12 @@ class CommentRequest extends FormRequest
                 'required',
                 'string',
                 'max:1000',
+            ],
+
+            'parent_id' => [
+                'nullable',
+                'integer',
+                'exists:comments,id',
             ],
         ];
     }

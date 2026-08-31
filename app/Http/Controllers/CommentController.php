@@ -12,7 +12,15 @@ class CommentController extends Controller
     public function index(Post $post)
     {
         $comments = $post->comments()
-            ->with('user:id,name,email')
+            ->whereNull('parent_id')
+            ->with([
+                'user:id,name,email',
+                'replies' => function ($query) {
+                    $query
+                        ->with('user:id,name,email')
+                        ->latest();
+                },
+            ])
             ->latest()
             ->get();
 
@@ -21,11 +29,26 @@ class CommentController extends Controller
         ]);
     }
 
-    public function store(CommentRequest $request, Post $post ) {
+    public function store(CommentRequest $request, Post $post)
+    {
+        $validated = $request->validated();
+
+        if (!empty($validated['parent_id'])) {
+            $parentComment = Comment::findOrFail(
+                $validated['parent_id']
+            );
+
+            abort_if(
+                $parentComment->post_id !== $post->id,
+                422,
+                'The parent comment does not belong to this post.'
+            );
+        }
 
         $comment = $post->comments()->create([
             'user_id' => $request->user()->id,
-            'content' => $request->validated('content'),
+            'content' => $validated['content'],
+            'parent_id' => $validated['parent_id'] ?? null,
         ]);
 
         $comment->load('user:id,name,email');
@@ -36,7 +59,8 @@ class CommentController extends Controller
         ], 201);
     }
 
-    public function update( CommentRequest $request, Comment $comment) {
+    public function update(CommentRequest $request, Comment $comment)
+    {
 
         Gate::authorize('update', $comment);
 
@@ -52,8 +76,9 @@ class CommentController extends Controller
         ]);
     }
 
-    public function destroy( Comment $comment) {
-        
+    public function destroy(Comment $comment)
+    {
+
         Gate::authorize('delete', $comment);
 
         $comment->delete();

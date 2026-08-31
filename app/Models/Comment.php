@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id','post_id','content'])]
+#[Fillable(['user_id','post_id','content','parent_id'])]
 class Comment extends Model
 {
     
@@ -20,6 +21,16 @@ public function user():BelongsTo
 public function post():BelongsTo
 {
  return $this->belongsTo(Post::class);
+}
+
+public function parent(): BelongsTo
+{
+    return $this->belongsTo(Comment::class, 'parent_id');
+}
+
+public function replies(): HasMany
+{
+    return $this->hasMany(Comment::class, 'parent_id');
 }
 
 }

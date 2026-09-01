@@ -13,15 +13,14 @@ class PostController extends Controller
         $posts = Post::with('user')
             ->withCount('likes')
             ->withExists([
-                'likes as is_liked' => function ($query) use ($request) {
-                    $query->where('user_id', $request->user()->id);
-                }
+                'likes as is_liked' => fn ($query) =>
+                    $query->where('user_id', $request->user()->id),
             ])
             ->latest()
             ->get();
 
         return response()->json([
-            'posts' => $posts
+            'posts' => $posts,
         ]);
     }
 
@@ -30,7 +29,9 @@ class PostController extends Controller
         $imagePath = null;
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('posts', 'public');
+            $imagePath = $request
+                ->file('image')
+                ->store('posts', 'public');
         }
 
         $post = Post::create([
@@ -39,26 +40,33 @@ class PostController extends Controller
             'image' => $imagePath,
         ]);
 
+        $post
+            ->load('user')
+            ->loadCount('likes')
+            ->loadExists([
+                'likes as is_liked' => fn ($query) =>
+                    $query->where('user_id', $request->user()->id),
+            ]);
+
         return response()->json([
             'message' => 'Post created successfully',
-            'post' => $post->load('user'),
+            'post' => $post,
         ], 201);
     }
 
-
     public function destroy(Post $post)
     {
-
         if ($post->user_id !== auth()->id()) {
             return response()->json([
-                'message' => 'You are not authorized to delete this post'
+                'message' => 'You are not authorized to delete this post',
             ], 403);
         }
 
         $post->delete();
 
         return response()->json([
-            'message' => 'Post deleted successfully'
+            'message' => 'Post deleted successfully',
         ]);
     }
 }
+

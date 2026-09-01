@@ -11,7 +11,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $posts = Post::with('user')
-            ->withCount('likes')
+            ->withCount(['likes', 'comments'])
             ->withExists([
                 'likes as is_liked' => fn ($query) =>
                     $query->where('user_id', $request->user()->id),
@@ -42,7 +42,7 @@ class PostController extends Controller
 
         $post
             ->load('user')
-            ->loadCount('likes')
+            ->loadCount(['likes', 'comments'])
             ->loadExists([
                 'likes as is_liked' => fn ($query) =>
                     $query->where('user_id', $request->user()->id),

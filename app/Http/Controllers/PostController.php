@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -13,8 +15,8 @@ class PostController extends Controller
         $posts = Post::with('user')
             ->withCount(['likes', 'comments'])
             ->withExists([
-                'likes as is_liked' => fn ($query) =>
-                    $query->where('user_id', $request->user()->id),
+                'likes as is_liked' => fn($query) =>
+                $query->where('user_id', $request->user()->id),
             ])
             ->latest()
             ->get();
@@ -44,8 +46,8 @@ class PostController extends Controller
             ->load('user')
             ->loadCount(['likes', 'comments'])
             ->loadExists([
-                'likes as is_liked' => fn ($query) =>
-                    $query->where('user_id', $request->user()->id),
+                'likes as is_liked' => fn($query) =>
+                $query->where('user_id', $request->user()->id),
             ]);
 
         return response()->json([
@@ -54,12 +56,26 @@ class PostController extends Controller
         ], 201);
     }
 
+    public function update(PostRequest $request, Post $post)
+    {
+        Gate::authorize('update', $post);
+
+        $post->update([
+            'content' => $request->input('content'),
+        ]);
+
+        return response()->json([
+            'message' => 'Post updated successfully',
+            'post' => $post->load('user'),
+        ]);
+    }
+
     public function destroy(Post $post)
     {
-        if ($post->user_id !== auth()->id()) {
-            return response()->json([
-                'message' => 'You are not authorized to delete this post',
-            ], 403);
+        Gate::authorize('delete', $post);
+
+        if ($post->image) {
+            Storage::disk('public')->delete($post->image);
         }
 
         $post->delete();
@@ -69,4 +85,3 @@ class PostController extends Controller
         ]);
     }
 }
-

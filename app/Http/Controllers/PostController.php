@@ -19,7 +19,7 @@ class PostController extends Controller
                 $query->where('user_id', $request->user()->id),
             ])
             ->latest()
-            ->get();
+            ->paginate(10);;
 
         return response()->json([
             'posts' => $posts,

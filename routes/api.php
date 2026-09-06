@@ -5,6 +5,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FriendshipController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -43,4 +44,14 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
     Route::patch('/comments/{comment}', [CommentController::class, 'update']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    // Friendships
+    Route::get('/friends',[FriendshipController::class, 'getFriends']);
+    Route::post('/users/{user}/friend',[FriendshipController::class,'sendRequest']);
+    Route::post('/friendships/{friendship}/accept',[FriendshipController::class, 'acceptRequest']);
+    Route::post('/friendships/{friendship}/reject',[FriendshipController::class, 'rejectRequest']);
+    Route::delete('/friendships/{friendship}/cancel',[FriendshipController::class, 'cancelRequest']);
+    Route::delete('/friendships/{friendship}',[FriendshipController::class, 'removeFriend']);
+    
+
 });

@@ -13,14 +13,14 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Post;
 use App\Models\Like;
-USE App\Models\Comment;
+use App\Models\Comment;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'username', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens , HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -35,16 +35,28 @@ class User extends Authenticatable
         ];
     }
 
-    public function posts():HasMany
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
 
-    public function likes():HasMany{
+    public function likes(): HasMany
+    {
         return $this->hasMany(Like::class);
     }
 
-    public function comments():HasMany{
+    public function comments(): HasMany
+    {
         return $this->hasMany(Comment::class);
+    }
+
+    public function sentFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'sender_id');
+    }
+
+    public function receivedFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'receiver_id');
     }
 }

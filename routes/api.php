@@ -47,6 +47,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Friendships
     Route::get('/friends',[FriendshipController::class, 'getFriends']);
+    Route::get('/friend-requests/incoming',[FriendshipController::class, 'getIncomingRequests']);
+    Route::get('/friend-requests/outgoing',[FriendshipController::class, 'getOutgoingRequests']);
     Route::post('/users/{user}/friend',[FriendshipController::class,'sendRequest']);
     Route::post('/friendships/{friendship}/accept',[FriendshipController::class, 'acceptRequest']);
     Route::post('/friendships/{friendship}/reject',[FriendshipController::class, 'rejectRequest']);

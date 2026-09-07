@@ -7,6 +7,7 @@ use App\Models\Friendship;
 use App\Services\FriendshipService;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\FriendRequestResource;
 
 class FriendshipController extends Controller
 {
@@ -81,5 +82,36 @@ class FriendshipController extends Controller
         return response()->json([
             'message' => 'Friend removed successfully.',
         ]);
+    }
+
+    public function getIncomingRequests(Request $request, FriendshipService $friendshipService)
+
+    {
+        $requests = $friendshipService->getIncomingRequests(
+            $request->user()
+        );
+
+        return FriendRequestResource::collection(
+            $requests->map(function ($request) {
+                $request->setRelation('user', $request->sender);
+
+                return $request;
+            })
+        );
+    }
+
+    public function getOutgoingRequests(Request $request, FriendshipService $friendshipService)
+    {
+        $requests = $friendshipService->getOutgoingRequests(
+            $request->user()
+        );
+
+        return FriendRequestResource::collection(
+            $requests->map(function ($request) {
+                $request->setRelation('user', $request->receiver);
+
+                return $request;
+            })
+        );
     }
 }

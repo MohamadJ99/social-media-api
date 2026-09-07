@@ -24,7 +24,7 @@ class FriendshipService
             })
             ->get();
     }
-    
+
     public function sendRequest(User $sender, User $receiver): Friendship
     {
         if ($sender->is($receiver)) {
@@ -138,5 +138,25 @@ class FriendshipService
         }
 
         $friendship->delete();
+    }
+
+    public function getIncomingRequests(User $user)
+    {
+        return Friendship::query()
+            ->with('sender')
+            ->where('receiver_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
+    }
+
+    public function getOutgoingRequests(User $user)
+    {
+        return Friendship::query()
+            ->with('receiver')
+            ->where('sender_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
     }
 }

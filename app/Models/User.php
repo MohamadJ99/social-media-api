@@ -15,7 +15,7 @@ use App\Models\Post;
 use App\Models\Like;
 use App\Models\Comment;
 
-#[Fillable(['name', 'username', 'email', 'password'])]
+#[Fillable(['name', 'username', 'email', 'password','bio','avatar','cover_image'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {

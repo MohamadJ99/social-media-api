@@ -23,6 +23,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
 
     // Users
+    Route::get('/me', [UserController::class, 'me']);
+    Route::patch('/me',[UserController::class,'update']);
+    Route::post('/me/avatar', [UserController::class, 'updateAvatar']);
+    Route::post('/me/cover', [UserController::class, 'updateCoverImage']);
     Route::get('/users/{id}', [UserController::class, 'show']);
 
     // Posts

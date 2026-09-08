@@ -13,10 +13,8 @@ use App\Services\FriendshipService;
 
 class UserController extends Controller
 {
-    public function show(
-        $id,
-        FriendshipService $friendshipService
-    ) {
+    public function show($id, FriendshipService $friendshipService)
+    {
         $user = User::query()
             ->withCount('posts')
             ->findOrFail($id);
@@ -26,9 +24,13 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function me(Request $request)
+    public function me(Request $request, FriendshipService $friendshipService)
     {
-        return new UserResource($request->user());
+        $user = $request->user();
+
+        $user->friends_count = $friendshipService->getFriendsCount($user);
+
+        return new UserResource($user);
     }
 
     public function update(UpdateProfileRequest $request)

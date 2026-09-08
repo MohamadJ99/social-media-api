@@ -12,14 +12,20 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $posts = Post::with('user')
+        $posts = Post::query()
+            ->with('user')
             ->withCount(['likes', 'comments'])
             ->withExists([
                 'likes as is_liked' => fn($query) =>
                 $query->where('user_id', $request->user()->id),
             ])
+            ->when(
+                $request->filled('user_id'),
+                fn($query) =>
+                $query->where('user_id', $request->integer('user_id'))
+            )
             ->latest()
-            ->paginate(10);;
+            ->paginate(10);
 
         return response()->json([
             'posts' => $posts,

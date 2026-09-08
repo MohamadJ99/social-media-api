@@ -9,12 +9,19 @@ use App\Http\Resources\UserResource;
 use App\Http\Requests\UpdateAvatarRequest;
 use App\Http\Requests\UpdateCoverImageRequest;
 use App\Services\ProfileService;
+use App\Services\FriendshipService;
 
 class UserController extends Controller
 {
-    public function show($id)
-    {
-        $user = User::findOrFail($id);
+    public function show(
+        $id,
+        FriendshipService $friendshipService
+    ) {
+        $user = User::query()
+            ->withCount('posts')
+            ->findOrFail($id);
+
+        $user->friends_count = $friendshipService->getFriendsCount($user);
 
         return new UserResource($user);
     }

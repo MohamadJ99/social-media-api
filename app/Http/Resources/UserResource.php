@@ -21,6 +21,8 @@ class UserResource extends JsonResource
             'bio' => $this->bio,
             'avatar' => $this->avatar,
             'cover_image' => $this->cover_image,
+            'posts_count' => $this->whenCounted('posts'),
+            'friends_count' => $this->friends_count,
         ];
     }
 }

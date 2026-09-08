@@ -25,6 +25,18 @@ class FriendshipService
             ->get();
     }
 
+    public function getFriendsCount(User $user): int
+    {
+        return Friendship::query()
+            ->where('status', 'accepted')
+            ->where(function ($query) use ($user) {
+                $query
+                    ->where('sender_id', $user->id)
+                    ->orWhere('receiver_id', $user->id);
+            })
+            ->count();
+    }
+
     public function sendRequest(User $sender, User $receiver): Friendship
     {
         if ($sender->is($receiver)) {

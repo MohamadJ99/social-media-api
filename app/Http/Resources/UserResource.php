@@ -23,6 +23,12 @@ class UserResource extends JsonResource
             'cover_image' => $this->cover_image,
             'posts_count' => $this->whenCounted('posts'),
             'friends_count' => $this->friends_count,
+            'friendship' => $this->friendship
+                ? [
+                    'id' => $this->friendship->id,
+                    'status' => $this->friendship->status,
+                ]
+                : null,
         ];
     }
 }

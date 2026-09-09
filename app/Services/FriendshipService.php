@@ -171,4 +171,24 @@ class FriendshipService
             ->latest()
             ->get();
     }
+
+
+    public function getFriendship(
+    User $user,
+    User $otherUser
+): ?Friendship {
+    return Friendship::query()
+        ->where(function ($query) use ($user, $otherUser) {
+            $query
+                ->where('sender_id', $user->id)
+                ->where('receiver_id', $otherUser->id);
+        })
+        ->orWhere(function ($query) use ($user, $otherUser) {
+            $query
+                ->where('sender_id', $otherUser->id)
+                ->where('receiver_id', $user->id);
+        })
+        ->first();
+}
+
 }

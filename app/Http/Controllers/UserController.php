@@ -21,6 +21,12 @@ class UserController extends Controller
 
         $user->friends_count = $friendshipService->getFriendsCount($user);
 
+        $friendship = $friendshipService->getFriendship(
+            request()->user(),
+            $user
+        );
+        $user->friendship = $friendship;
+
         return new UserResource($user);
     }
 

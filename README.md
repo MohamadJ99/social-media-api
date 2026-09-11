@@ -1,58 +1,208 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MJ Social Media App — Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> 🚧 This project is currently under development.
 
-## About Laravel
+A RESTful API backend for the **MJ Social Media App**, built with **Laravel**, **PHP**, **MySQL**, and **Laravel Sanctum**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This repository contains the backend API consumed by the separate Next.js frontend application.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* Laravel
+* PHP
+* MySQL
+* Laravel Sanctum
+* REST API
+* Eloquent ORM
+* Git & GitHub
 
-## Learning Laravel
+## Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Authentication & Authorization
+* Token-based authentication with Laravel Sanctum
+* User Profiles
+* Profile Updates
+* Avatar & Cover Image Uploads
+* Posts CRUD
+* Image Uploads
+* Likes
+* Comments & Replies
+* Friend Requests
+* Friends System
+* Policies & Authorization
+* Form Request Validation
+* API Rate Limiting
+* Pagination
+* Infinite Scroll API Support
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## API Endpoints
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Authentication
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+POST /api/register
+POST /api/login
+POST /api/logout
+GET  /api/user
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Posts
 
-## Contributing
+```text
+GET    /api/posts
+POST   /api/posts
+PATCH  /api/posts/{post}
+DELETE /api/posts/{post}
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Profile
 
-## Code of Conduct
+```text
+GET   /api/me
+PATCH /api/me
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+POST /api/me/avatar
+POST /api/me/cover
 
-## Security Vulnerabilities
+GET /api/users/{id}
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Friends
 
-## License
+```text
+GET    /api/friends
+POST   /api/users/{user}/friend
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+POST   /api/friendships/{friendship}/accept
+POST   /api/friendships/{friendship}/reject
+
+DELETE /api/friendships/{friendship}/cancel
+DELETE /api/friendships/{friendship}
+```
+
+### Comments
+
+```text
+GET    /api/posts/{post}/comments
+POST   /api/posts/{post}/comments
+
+PATCH  /api/comments/{comment}
+DELETE /api/comments/{comment}
+```
+
+### Likes
+
+```text
+POST   /api/posts/{post}/like
+DELETE /api/posts/{post}/like
+
+POST   /api/comments/{comment}/like
+DELETE /api/comments/{comment}/like
+```
+
+## Frontend
+
+The API is consumed by a separate Next.js frontend application.
+
+**Frontend Repository:**
+https://github.com/MohamadJ99/Social-Media-App
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone [backend-repository-url]
+cd [project-folder]
+```
+
+### 2. Install dependencies
+
+```bash
+composer install
+```
+
+### 3. Configure environment
+
+Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Generate the application key:
+
+```bash
+php artisan key:generate
+```
+
+Configure your database connection in `.env`.
+
+### 4. Run migrations
+
+```bash
+php artisan migrate
+```
+
+### 5. Create storage link
+
+```bash
+php artisan storage:link
+```
+
+### 6. Start the development server
+
+```bash
+php artisan serve
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Architecture
+
+The backend follows a structured Laravel API architecture using:
+
+* **Controllers** — Handle HTTP requests and responses
+* **Form Requests** — Handle request validation
+* **Services** — Handle business logic
+* **Policies** — Handle authorization
+* **API Resources** — Provide consistent API responses
+* **Eloquent ORM** — Handle database relationships and queries
+* **Sanctum** — Handle API token authentication
+
+## Project Structure
+
+```text
+app/
+├── Http/
+│   ├── Controllers/
+│   ├── Requests/
+│   └── Resources/
+│
+├── Models/
+├── Policies/
+└── Services/
+
+routes/
+└── api.php
+
+database/
+├── migrations/
+└── seeders/
+```
+
+## Status
+
+🚧 **Ongoing Project**
+
+The API is actively being developed alongside the Next.js frontend.
+
+## Author
+
+**Mohammad Jawad Al-Shanableh**
+
+GitHub: `MohamadJ99`

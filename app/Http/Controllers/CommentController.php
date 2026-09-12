@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Http\Requests\CommentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Services\NotificationService;
 
 class CommentController extends Controller
 {
@@ -45,12 +46,15 @@ class CommentController extends Controller
 
 
 
-    public function store(CommentRequest $request, Post $post)
-    {
+    public function store(
+        CommentRequest $request,
+        Post $post,
+        NotificationService $notificationService
+    ) {
         $validated = $request->validated();
 
         if (!empty($validated['parent_id'])) {
-            $parentComment = Comment::findOrFail(
+            $parentComment = Comment::with('user')->findOrFail(
                 $validated['parent_id']
             );
 
@@ -66,6 +70,28 @@ class CommentController extends Controller
             'content' => $validated['content'],
             'parent_id' => $validated['parent_id'] ?? null,
         ]);
+
+        if (!empty($validated['parent_id'])) {
+
+            // Reply to a comment
+            if ($parentComment->user_id !== $request->user()->id) {
+                $notificationService->create(
+                    $parentComment->user,
+                    'comment',
+                    "{$request->user()->name} replied to your comment.",
+                    $comment
+                );
+            }
+        } elseif ($post->user_id !== $request->user()->id) {
+
+            // Comment on a post
+            $notificationService->create(
+                $post->user,
+                'comment',
+                "{$request->user()->name} commented on your post.",
+                $comment
+            );
+        }
 
         $comment->load('user:id,name,email');
 

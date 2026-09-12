@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -59,5 +60,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('/friendships/{friendship}/cancel',[FriendshipController::class, 'cancelRequest']);
     Route::delete('/friendships/{friendship}',[FriendshipController::class, 'removeFriend']);
     
+   // Notifications
 
+   Route::get('/notifications', [NotificationController::class, 'index']);
+   Route::patch('/notifications/{notification}/read',[NotificationController::class, 'markAsRead']);
+   Route::get('/notifications/unread-count',[NotificationController::class, 'unreadCount']);
 });

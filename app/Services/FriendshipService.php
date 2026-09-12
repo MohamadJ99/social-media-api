@@ -5,9 +5,17 @@ namespace App\Services;
 use App\Models\Friendship;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
+use App\Services\NotificationService;
 
 class FriendshipService
 {
+
+    private NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
 
     public function getFriends(User $user)
     {
@@ -37,8 +45,10 @@ class FriendshipService
             ->count();
     }
 
-    public function sendRequest(User $sender, User $receiver): Friendship
-    {
+    public function sendRequest(
+        User $sender,
+        User $receiver
+    ): Friendship {
         if ($sender->is($receiver)) {
             throw ValidationException::withMessages([
                 'user' => 'You cannot send a friend request to yourself.',
@@ -47,11 +57,13 @@ class FriendshipService
 
         $existingFriendship = Friendship::query()
             ->where(function ($query) use ($sender, $receiver) {
-                $query->where('sender_id', $sender->id)
+                $query
+                    ->where('sender_id', $sender->id)
                     ->where('receiver_id', $receiver->id);
             })
             ->orWhere(function ($query) use ($sender, $receiver) {
-                $query->where('sender_id', $receiver->id)
+                $query
+                    ->where('sender_id', $receiver->id)
                     ->where('receiver_id', $sender->id);
             })
             ->first();
@@ -62,15 +74,26 @@ class FriendshipService
             ]);
         }
 
-        return Friendship::create([
+        $friendship = Friendship::create([
             'sender_id' => $sender->id,
             'receiver_id' => $receiver->id,
             'status' => 'pending',
         ]);
+
+        $this->notificationService->create(
+            $receiver,
+            'friend_request',
+            "{$sender->name} sent you a friend request.",
+            $friendship
+        );
+
+        return $friendship;
     }
 
-    public function acceptRequest(User $user, Friendship $friendship): Friendship
-    {
+    public function acceptRequest(
+        User $user,
+        Friendship $friendship
+    ): Friendship {
         if ($friendship->receiver_id !== $user->id) {
             throw ValidationException::withMessages([
                 'friendship' => 'You are not allowed to accept this friend request.',
@@ -86,6 +109,13 @@ class FriendshipService
         $friendship->update([
             'status' => 'accepted',
         ]);
+
+        $this->notificationService->create(
+            $friendship->sender,
+            'friend_request_accepted',
+            "{$user->name} accepted your friend request.",
+            $friendship
+        );
 
         return $friendship->refresh();
     }
@@ -174,21 +204,20 @@ class FriendshipService
 
 
     public function getFriendship(
-    User $user,
-    User $otherUser
-): ?Friendship {
-    return Friendship::query()
-        ->where(function ($query) use ($user, $otherUser) {
-            $query
-                ->where('sender_id', $user->id)
-                ->where('receiver_id', $otherUser->id);
-        })
-        ->orWhere(function ($query) use ($user, $otherUser) {
-            $query
-                ->where('sender_id', $otherUser->id)
-                ->where('receiver_id', $user->id);
-        })
-        ->first();
-}
-
+        User $user,
+        User $otherUser
+    ): ?Friendship {
+        return Friendship::query()
+            ->where(function ($query) use ($user, $otherUser) {
+                $query
+                    ->where('sender_id', $user->id)
+                    ->where('receiver_id', $otherUser->id);
+            })
+            ->orWhere(function ($query) use ($user, $otherUser) {
+                $query
+                    ->where('sender_id', $otherUser->id)
+                    ->where('receiver_id', $user->id);
+            })
+            ->first();
+    }
 }

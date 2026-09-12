@@ -14,8 +14,9 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Post;
 use App\Models\Like;
 use App\Models\Comment;
+use App\Models\Notification;
 
-#[Fillable(['name', 'username', 'email', 'password','bio','avatar','cover_image'])]
+#[Fillable(['name', 'username', 'email', 'password', 'bio', 'avatar', 'cover_image'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -58,5 +59,10 @@ class User extends Authenticatable
     public function receivedFriendRequests(): HasMany
     {
         return $this->hasMany(Friendship::class, 'receiver_id');
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
     }
 }

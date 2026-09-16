@@ -32,6 +32,21 @@ class PostController extends Controller
         ]);
     }
 
+    public function show(Request $request, Post $post)
+    {
+        $post
+            ->load('user')
+            ->loadCount(['likes', 'comments'])
+            ->loadExists([
+                'likes as is_liked' => fn($query) =>
+                $query->where('user_id', $request->user()->id),
+            ]);
+
+        return response()->json([
+            'post' => $post,
+        ]);
+    }
+
     public function store(PostRequest $request)
     {
         $imagePath = null;

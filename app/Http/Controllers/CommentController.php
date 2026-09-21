@@ -19,10 +19,10 @@ class CommentController extends Controller
         $comments = $post->comments()
             ->whereNull('parent_id')
             ->with([
-                'user:id,name,email',
+                'user:id,name,email,avatar',
                 'replies' => function ($query) use ($userId) {
                     $query
-                        ->with('user:id,name,email')
+                        ->with('user:id,name,email,avatar')
                         ->withCount('likes')
                         ->withExists([
                             'likes as is_liked' => fn($query) =>
@@ -43,7 +43,6 @@ class CommentController extends Controller
             'comments' => $comments,
         ]);
     }
-
 
 
     public function store(

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\Like;
 use App\Models\Comment;
 
-#[Fillable(['user_id', 'content', 'image'])]
+#[Fillable(['user_id', 'content', 'image','video'])]
 class Post extends Model
 {
     public function user(): BelongsTo

@@ -50,6 +50,7 @@ class PostController extends Controller
     public function store(PostRequest $request)
     {
         $imagePath = null;
+        $videoPath = null;
 
         if ($request->hasFile('image')) {
             $imagePath = $request
@@ -57,10 +58,17 @@ class PostController extends Controller
                 ->store('posts', 'public');
         }
 
+        if ($request->hasFile('video')) {
+            $videoPath = $request
+                ->file('video')
+                ->store('posts', 'public');
+        }
+
         $post = Post::create([
             'user_id' => $request->user()->id,
             'content' => $request->input('content'),
             'image' => $imagePath,
+            'video' => $videoPath,
         ]);
 
         $post
@@ -97,6 +105,10 @@ class PostController extends Controller
 
         if ($post->image) {
             Storage::disk('public')->delete($post->image);
+        }
+
+        if ($post->video) {
+            Storage::disk('public')->delete($post->video);
         }
 
         $post->delete();

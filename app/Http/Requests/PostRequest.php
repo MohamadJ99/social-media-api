@@ -20,11 +20,29 @@ class PostRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            'content'=>['required_without:image','nullable','string','max:5000'],
-            'image'=>['nullable','image','mimes:jpg,jpeg,png,webp','max:2048']
-        ];
-    }
+   public function rules(): array
+{
+    return [
+        'content' => [
+            'required_without_all:image,video',
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'image' => [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:5120',
+        ],
+
+        'video' => [
+            'nullable',
+            'file',
+            'mimes:mp4,mov,webm',
+            'max:20480',
+        ],
+    ];
+}
 }

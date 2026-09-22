@@ -15,6 +15,8 @@ use App\Models\Post;
 use App\Models\Like;
 use App\Models\Comment;
 use App\Models\Notification;
+use App\Models\Conversation;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['name', 'username', 'email', 'password', 'bio', 'avatar', 'cover_image'])]
 #[Hidden(['password', 'remember_token'])]
@@ -64,5 +66,11 @@ class User extends Authenticatable
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class)
+            ->withTimestamps();
     }
 }

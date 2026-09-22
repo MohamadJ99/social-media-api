@@ -16,20 +16,25 @@ class CommentController extends Controller
     {
         $userId = $request->user()->id;
 
+        $loadReplies = function ($query) use (&$loadReplies, $userId) {
+            $query
+                ->with([
+                    'user:id,name,email,avatar',
+                    'replies' => $loadReplies,
+                ])
+                ->withCount('likes')
+                ->withExists([
+                    'likes as is_liked' => fn($query) =>
+                    $query->where('user_id', $userId),
+                ])
+                ->latest();
+        };
+
         $comments = $post->comments()
             ->whereNull('parent_id')
             ->with([
                 'user:id,name,email,avatar',
-                'replies' => function ($query) use ($userId) {
-                    $query
-                        ->with('user:id,name,email,avatar')
-                        ->withCount('likes')
-                        ->withExists([
-                            'likes as is_liked' => fn($query) =>
-                            $query->where('user_id', $userId),
-                        ])
-                        ->latest();
-                },
+                'replies' => $loadReplies,
             ])
             ->withCount('likes')
             ->withExists([

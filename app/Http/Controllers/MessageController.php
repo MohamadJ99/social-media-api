@@ -8,6 +8,7 @@ use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Models\Message;
+use App\Events\MessageSent;
 
 class MessageController extends Controller
 {
@@ -48,6 +49,7 @@ class MessageController extends Controller
         $message->load('user:id,name,email,avatar');
 
         $conversation->touch();
+        MessageSent::dispatch($message);
 
         return new MessageResource($message);
     }
@@ -68,7 +70,8 @@ class MessageController extends Controller
     }
 
 
-    public function update( UpdateMessageRequest $request, Message $message ) {
+    public function update(UpdateMessageRequest $request, Message $message)
+    {
 
         abort_unless(
             $message->user_id === $request->user()->id,

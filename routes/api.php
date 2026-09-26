@@ -73,6 +73,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Conversations
     Route::get('/conversations', [ConversationController::class, 'index']);
     Route::post('/conversations', [ConversationController::class, 'store']);
+    Route::patch( '/conversations/{conversation}/read', [ConversationController::class, 'markAsRead']);
 
     // Messages
     Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);

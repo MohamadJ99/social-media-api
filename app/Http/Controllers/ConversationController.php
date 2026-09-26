@@ -10,22 +10,48 @@ use App\Http\Resources\ConversationResource;
 class ConversationController extends Controller
 {
     public function index(Request $request)
-    {
-        $conversations = $request->user()
-            ->conversations()
-            ->with([
-                'users:id,name,email,avatar',
-                'messages' => function ($query) {
-                    $query
-                        ->latest()
-                        ->limit(1);
-                },
-            ])
-            ->latest('conversations.updated_at')
-            ->get();
+{
+    $user = $request->user();
 
-        return ConversationResource::collection($conversations);
-    }
+    $conversations = $user
+        ->conversations()
+        ->with([
+            'users:id,name,email,avatar',
+            'messages' => function ($query) {
+                $query
+                    ->latest()
+                    ->limit(1);
+            },
+        ])
+        ->withCount([
+            'messages as unread_count' => function ($query) use ($user) {
+                $query
+                    ->where('messages.user_id', '!=', $user->id)
+                    ->whereRaw(
+                        'messages.created_at > COALESCE(
+                            (
+                                SELECT last_read_at
+                                FROM conversation_user
+                                WHERE conversation_user.conversation_id = messages.conversation_id
+                                AND conversation_user.user_id = ?
+                                LIMIT 1
+                            ),
+                            ?
+                        )',
+                        [
+                            $user->id,
+                            '1970-01-01 00:00:00',
+                        ]
+                    );
+            },
+        ])
+        ->latest('conversations.updated_at')
+        ->get();
+
+    return ConversationResource::collection(
+        $conversations
+    );
+}
 
     public function store(CreateConversationRequest $request)
     {
@@ -69,4 +95,26 @@ class ConversationController extends Controller
 
         return new ConversationResource($conversation);
     }
+
+    public function markAsRead(  Request $request,  Conversation $conversation) {
+    $user = $request->user();
+
+    abort_unless(
+        $conversation->users()
+            ->where('users.id', $user->id)
+            ->exists(),
+        403
+    );
+
+    $conversation->users()->updateExistingPivot(
+        $user->id,
+        [
+            'last_read_at' => now(),
+        ]
+    );
+
+    return response()->json([
+        'message' => 'Conversation marked as read.',
+    ]);
+}
 }

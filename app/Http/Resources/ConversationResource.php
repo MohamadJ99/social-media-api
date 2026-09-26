@@ -7,14 +7,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ConversationResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-         $currentUserId = $request->user()->id;
+        $currentUserId = $request->user()->id;
 
         $otherUser = $this->users
             ->firstWhere('id', '!=', $currentUserId);
@@ -38,8 +33,9 @@ class ConversationResource extends JsonResource
                 'created_at' => $lastMessage->created_at,
             ] : null,
 
+            'unread_count' => $this->unread_count,
+
             'updated_at' => $this->updated_at,
         ];
-    
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Events\MessageSent;
+use App\Events\MessageReceived;
 
 class MessageController extends Controller
 {
@@ -31,25 +32,41 @@ class MessageController extends Controller
         return MessageResource::collection($messages);
     }
 
-    public function store(StoreMessageRequest $request,  Conversation $conversation)
-    {
+    public function store(
+        StoreMessageRequest $request,
+        Conversation $conversation
+    ) {
+        $currentUser = $request->user();
 
         abort_unless(
             $conversation->users()
-                ->where('users.id', $request->user()->id)
+                ->where('users.id', $currentUser->id)
                 ->exists(),
             403
         );
 
+        $recipientId = $conversation
+            ->users()
+            ->where('users.id', '!=', $currentUser->id)
+            ->value('users.id');
+
+        abort_unless($recipientId, 422);
+
         $message = $conversation->messages()->create([
-            'user_id' => $request->user()->id,
+            'user_id' => $currentUser->id,
             'body' => $request->validated('body'),
         ]);
 
         $message->load('user:id,name,email,avatar');
 
         $conversation->touch();
+
         MessageSent::dispatch($message);
+
+        MessageReceived::dispatch(
+            $message,
+            $recipientId
+        );
 
         return new MessageResource($message);
     }

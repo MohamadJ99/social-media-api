@@ -13,10 +13,21 @@ class NotificationResource extends JsonResource
             'id' => $this->id,
             'type' => $this->type,
             'message' => $this->message,
+
+            'actor' => $this->whenLoaded('actor', function () {
+                return [
+                    'id' => $this->actor->id,
+                    'name' => $this->actor->name,
+                    'avatar' => $this->actor->avatar,
+                ];
+            }),
+
             'read_at' => $this->read_at,
+
             'notifiable_type' => $this->notifiable_type,
             'notifiable_id' => $this->notifiable_id,
             'post_id' => $this->notifiable?->post_id,
+
             'created_at' => $this->created_at,
         ];
     }

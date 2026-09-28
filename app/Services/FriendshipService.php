@@ -82,6 +82,7 @@ class FriendshipService
 
         $this->notificationService->create(
             $receiver,
+            $sender,
             'friend_request',
             "{$sender->name} sent you a friend request.",
             $friendship
@@ -112,6 +113,7 @@ class FriendshipService
 
         $this->notificationService->create(
             $friendship->sender,
+            $user,
             'friend_request_accepted',
             "{$user->name} accepted your friend request.",
             $friendship
@@ -119,7 +121,6 @@ class FriendshipService
 
         return $friendship->refresh();
     }
-
 
     public function rejectRequest(
         User $user,

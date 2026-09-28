@@ -9,9 +9,13 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notification = $request->user()->notifications()->latest()->paginate(20);
+        $notifications = $request->user()
+            ->notifications()
+            ->with('actor:id,name,avatar')
+            ->latest()
+            ->paginate(20);
 
-        return NotificationResource::collection($notification);
+        return NotificationResource::collection($notifications);
     }
 
     public function markAsRead(

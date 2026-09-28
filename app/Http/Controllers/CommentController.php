@@ -81,6 +81,7 @@ class CommentController extends Controller
             if ($parentComment->user_id !== $request->user()->id) {
                 $notificationService->create(
                     $parentComment->user,
+                    $request->user(),
                     'comment',
                     "{$request->user()->name} replied to your comment.",
                     $comment
@@ -91,6 +92,7 @@ class CommentController extends Controller
             // Comment on a post
             $notificationService->create(
                 $post->user,
+                $request->user(),
                 'comment',
                 "{$request->user()->name} commented on your post.",
                 $comment

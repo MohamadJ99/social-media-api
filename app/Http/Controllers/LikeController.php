@@ -23,6 +23,7 @@ class LikeController extends Controller
         ) {
             $notificationService->create(
                 $post->user,
+                $request->user(),
                 'like',
                 "{$request->user()->name} liked your post.",
                 $post
@@ -55,6 +56,7 @@ class LikeController extends Controller
         ) {
             $notificationService->create(
                 $comment->user,
+                $request->user(),
                 'like',
                 "{$request->user()->name} liked your comment.",
                 $comment

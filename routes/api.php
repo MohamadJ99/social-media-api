@@ -9,6 +9,7 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\API\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -16,6 +17,18 @@ Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
+
+
+
+Route::post('/forgot-password', [
+    PasswordResetController::class,
+    'forgotPassword',
+])->middleware('throttle:forgot-password');
+
+Route::post('/reset-password', [
+    PasswordResetController::class,
+    'resetPassword',
+])->middleware('throttle:reset-password');
 
 
 // Protected Routes
@@ -73,7 +86,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Conversations
     Route::get('/conversations', [ConversationController::class, 'index']);
     Route::post('/conversations', [ConversationController::class, 'store']);
-    Route::patch( '/conversations/{conversation}/read', [ConversationController::class, 'markAsRead']);
+    Route::patch('/conversations/{conversation}/read', [ConversationController::class, 'markAsRead']);
 
     // Messages
     Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);

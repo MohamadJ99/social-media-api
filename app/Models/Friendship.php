@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Friendship extends Model
 {
 
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');

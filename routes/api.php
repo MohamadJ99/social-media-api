@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\API\PasswordResetController;
+use App\Http\Controllers\API\StoryController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -93,4 +94,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
     Route::delete('/messages/{message}', [MessageController::class, 'destroy']);
     Route::patch('/messages/{message}', [MessageController::class, 'update']);
+
+     //Stories
+     Route::get('/stories', [ StoryController::class, 'index',]);
+     Route::post('/stories', [ StoryController::class, 'store',]);
+     Route::delete('/stories/{story}', [  StoryController::class, 'destroy', ]);
 });

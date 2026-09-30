@@ -69,10 +69,34 @@ class User extends Authenticatable
     }
 
     public function conversations(): BelongsToMany
-{
-    return $this->belongsToMany(Conversation::class)
-        ->withPivot('last_read_at')
-        ->withTimestamps();
+    {
+        return $this->belongsToMany(Conversation::class)
+            ->withPivot('last_read_at')
+            ->withTimestamps();
+    }
 
-}
+    public function stories(): HasMany
+    {
+        return $this->hasMany(Story::class);
+    }
+
+    public function storyViews(): HasMany
+    {
+        return $this->hasMany(
+            StoryView::class,
+            'viewer_id'
+        );
+    }
+
+    public function viewedStories(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Story::class,
+            'story_views',
+            'viewer_id',
+            'story_id'
+        )
+            ->withPivot('viewed_at')
+            ->withTimestamps();
+    }
 }

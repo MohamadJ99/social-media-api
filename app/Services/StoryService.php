@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Friendship;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use App\Jobs\DeleteExpiredStory;
 use Throwable;
 
 class StoryService
@@ -29,7 +30,7 @@ class StoryService
         );
 
         try {
-            return DB::transaction(
+            $story = DB::transaction(
                 function () use (
                     $user,
                     $mediaData,
@@ -48,6 +49,14 @@ class StoryService
                     ]);
                 }
             );
+
+            DeleteExpiredStory::dispatch(
+                $story->id
+            )->delay(
+                $story->expires_at
+            );
+
+            return $story;
         } catch (Throwable $exception) {
             $this->mediaService->delete(
                 $mediaData['media_disk'],
@@ -200,5 +209,35 @@ class StoryService
                 ['has_unseen_stories', 'desc'],
             ])
             ->values();
+    }
+
+    public function recordView(
+        User $user,
+        Story $story
+    ): void {
+        // Owner views should not count
+        if ($user->id === $story->user_id) {
+            return;
+        }
+
+        $now = now();
+
+        DB::table('story_views')->insertOrIgnore([
+            'story_id' => $story->id,
+            'viewer_id' => $user->id,
+            'viewed_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+    }
+
+    public function getViewers(Story $story)
+    {
+        return $story->views()
+            ->with([
+                'viewer:id,name,username,avatar',
+            ])
+            ->latest('viewed_at')
+            ->get();
     }
 }

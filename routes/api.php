@@ -96,7 +96,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::patch('/messages/{message}', [MessageController::class, 'update']);
 
      //Stories
-     Route::get('/stories', [ StoryController::class, 'index',]);
-     Route::post('/stories', [ StoryController::class, 'store',]);
-     Route::delete('/stories/{story}', [  StoryController::class, 'destroy', ]);
+     Route::get('/stories', [StoryController::class,'index',]);
+     Route::get('/stories/{story}/viewers', [StoryController::class,'viewers']);
+     Route::post('/stories', [StoryController::class, 'store',]);
+     Route::post('/stories/{story}/view', [StoryController::class,'view',]);
+     Route::delete('/stories/{story}', [StoryController::class,'destroy', ]);
 });

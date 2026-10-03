@@ -15,7 +15,8 @@ class StoryController extends Controller
 {
     public function __construct(private StoryService $storyService) {}
 
-    public function index( Request $request): JsonResponse {
+    public function index(Request $request): JsonResponse
+    {
         $feed = $this->storyService->getFeed(
             $request->user()
         );
@@ -47,7 +48,8 @@ class StoryController extends Controller
             'data' => $data,
         ]);
     }
-    public function store( StoreStoryRequest $request): JsonResponse {
+    public function store(StoreStoryRequest $request): JsonResponse
+    {
         $story = $this->storyService->create(
             user: $request->user(),
             media: $request->file('media'),
@@ -61,13 +63,54 @@ class StoryController extends Controller
         ], 201);
     }
 
-    public function destroy( Story $story ): JsonResponse {
+    public function destroy(Story $story): JsonResponse
+    {
         Gate::authorize('delete', $story);
 
         $this->storyService->delete($story);
 
         return response()->json([
             'message' => 'Story deleted successfully.',
+        ]);
+    }
+
+
+    public function view(Request $request, Story $story): JsonResponse
+    {
+        Gate::authorize('view', $story);
+
+        $this->storyService->recordView(
+            $request->user(),
+            $story
+        );
+
+        return response()->json([
+            'message' => 'Story viewed successfully.',
+        ]);
+    }
+
+
+    public function viewers(
+        Story $story
+    ): JsonResponse {
+        Gate::authorize('viewViewers', $story);
+
+        $views = $this->storyService->getViewers(
+            $story
+        );
+
+        return response()->json([
+            'views_count' => $views->count(),
+
+            'viewers' => $views->map(function ($view) {
+                return [
+                    'id' => $view->viewer->id,
+                    'name' => $view->viewer->name,
+                    'username' => $view->viewer->username,
+                    'avatar' => $view->viewer->avatar,
+                    'viewed_at' => $view->viewed_at,
+                ];
+            })->values(),
         ]);
     }
 }

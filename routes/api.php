@@ -11,6 +11,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\StoryController;
+use App\Http\Controllers\AI\AIPostController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -101,4 +102,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
      Route::post('/stories', [StoryController::class, 'store',]);
      Route::post('/stories/{story}/view', [StoryController::class,'view',]);
      Route::delete('/stories/{story}', [StoryController::class,'destroy', ]);
+
+
+     // AI POSTS
+     Route::post( '/ai/posts/generate',  [AIPostController::class, 'generate']);
+
 });

@@ -26,17 +26,53 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         /*
-        |--------------------------------------------------------------------------
-        | API Rate Limit
-        |--------------------------------------------------------------------------
-        */
+    |--------------------------------------------------------------------------
+    | API Rate Limit
+    |--------------------------------------------------------------------------
+    */
 
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)
+            return Limit::perMinute(300)
                 ->by(
                     $request->user()?->id
-                    ?: $request->ip()
+                        ?: $request->ip()
                 );
+        });
+
+        /*
+    |--------------------------------------------------------------------------
+    | Create Post Rate Limit
+    |--------------------------------------------------------------------------
+    */
+
+        RateLimiter::for('posts', function (Request $request) {
+            $userKey = $request->user()?->id
+                ?: $request->ip();
+
+            return Limit::perMinute(10)
+                ->by('posts:' . $userKey);
+        });
+
+        /*
+    |--------------------------------------------------------------------------
+    | AI Post Generation Rate Limit
+    |--------------------------------------------------------------------------
+    */
+
+        RateLimiter::for('ai-posts', function (Request $request) {
+            $userKey = $request->user()?->id
+                ?: $request->ip();
+
+            return [
+                Limit::perMinute(5)
+                    ->by('ai-minute:' . $userKey),
+
+                Limit::perDay(20)
+                    ->by('ai-day:' . $userKey),
+
+                Limit::perDay(40)
+                    ->by('ai-global-day'),
+            ];
         });
 
         /*

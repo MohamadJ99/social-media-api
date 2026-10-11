@@ -50,7 +50,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Posts
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/posts/{post}', [PostController::class, 'show']);
-    Route::post('/posts', [PostController::class, 'store']);
+    Route::post( '/posts', [PostController::class, 'store'])->middleware('throttle:posts');
     Route::patch('/posts/{post}', [PostController::class, 'update']);
     Route::delete('/posts/{post}', [PostController::class, 'destroy']);
 
@@ -105,6 +105,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
 
      // AI POSTS
-     Route::post( '/ai/posts/generate',  [AIPostController::class, 'generate']);
+     Route::post( '/ai/posts/generate',  [AIPostController::class, 'generate'])->middleware('throttle:ai-posts');
 
 });

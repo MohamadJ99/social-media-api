@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchUsersRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UpdateAvatarRequest;
 use App\Http\Requests\UpdateCoverImageRequest;
+use App\Http\Resources\SearchUserResource;
 use App\Services\ProfileService;
 use App\Services\FriendshipService;
 
@@ -37,6 +39,25 @@ class UserController extends Controller
         $user->friends_count = $friendshipService->getFriendsCount($user);
 
         return new UserResource($user);
+    }
+
+    public function search(SearchUsersRequest $request)
+    {
+        $search = trim(
+            $request->string('q')->toString()
+        );
+
+        $users = User::query()
+            ->where('id', '!=', $request->user()->id)
+            ->where(function ($query) use ($search) {
+                $query
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('username', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->paginate(10);
+
+        return SearchUserResource::collection($users);
     }
 
     public function update(UpdateProfileRequest $request)

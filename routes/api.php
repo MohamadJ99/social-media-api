@@ -45,7 +45,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::patch('/me', [UserController::class, 'update']);
     Route::post('/me/avatar', [UserController::class, 'updateAvatar']);
     Route::post('/me/cover', [UserController::class, 'updateCoverImage']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::get('/users/search', [ UserController::class, 'search',]);
+    Route::get('/users/{id}', [ UserController::class, 'show',])->whereNumber('id');
 
     // Posts
     Route::get('/posts', [PostController::class, 'index']);

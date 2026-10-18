@@ -12,6 +12,9 @@ use App\Http\Requests\UpdateCoverImageRequest;
 use App\Http\Resources\SearchUserResource;
 use App\Services\ProfileService;
 use App\Services\FriendshipService;
+use App\Http\Requests\UpdatePasswordRequest;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -85,5 +88,33 @@ class UserController extends Controller
         );
 
         return new UserResource($user);
+    }
+
+
+
+    public function updatePassword(UpdatePasswordRequest $request)
+    {
+        $user = $request->user();
+
+        if (!Hash::check(
+            $request->string('current_password')->toString(),
+            $user->password
+        )) {
+            throw ValidationException::withMessages([
+                'current_password' => [
+                    'The current password is incorrect.',
+                ],
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make(
+                $request->string('password')->toString()
+            ),
+        ]);
+
+        return response()->json([
+            'message' => 'Password updated successfully.',
+        ]);
     }
 }

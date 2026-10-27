@@ -99,4 +99,10 @@ class User extends Authenticatable
             ->withPivot('viewed_at')
             ->withTimestamps();
     }
+
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
 }

@@ -12,6 +12,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\StoryController;
 use App\Http\Controllers\AI\AIPostController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -43,16 +44,16 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Users
     Route::get('/me', [UserController::class, 'me']);
     Route::patch('/me', [UserController::class, 'update']);
-    Route::patch('/me/password',[UserController::class,'updatePassword']);
+    Route::patch('/me/password', [UserController::class, 'updatePassword']);
     Route::post('/me/avatar', [UserController::class, 'updateAvatar']);
     Route::post('/me/cover', [UserController::class, 'updateCoverImage']);
-    Route::get('/users/search', [ UserController::class, 'search',]);
-    Route::get('/users/{id}', [ UserController::class, 'show',])->whereNumber('id');
+    Route::get('/users/search', [UserController::class, 'search',]);
+    Route::get('/users/{id}', [UserController::class, 'show',])->whereNumber('id');
 
     // Posts
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/posts/{post}', [PostController::class, 'show']);
-    Route::post( '/posts', [PostController::class, 'store'])->middleware('throttle:posts');
+    Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:posts');
     Route::patch('/posts/{post}', [PostController::class, 'update']);
     Route::delete('/posts/{post}', [PostController::class, 'destroy']);
 
@@ -98,15 +99,20 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('/messages/{message}', [MessageController::class, 'destroy']);
     Route::patch('/messages/{message}', [MessageController::class, 'update']);
 
-     //Stories
-     Route::get('/stories', [StoryController::class,'index',]);
-     Route::get('/stories/{story}/viewers', [StoryController::class,'viewers']);
-     Route::post('/stories', [StoryController::class, 'store',]);
-     Route::post('/stories/{story}/view', [StoryController::class,'view',]);
-     Route::delete('/stories/{story}', [StoryController::class,'destroy', ]);
+    //Stories
+    Route::get('/stories', [StoryController::class, 'index',]);
+    Route::get('/stories/{story}/viewers', [StoryController::class, 'viewers']);
+    Route::post('/stories', [StoryController::class, 'store',]);
+    Route::post('/stories/{story}/view', [StoryController::class, 'view',]);
+    Route::delete('/stories/{story}', [StoryController::class, 'destroy',]);
 
 
-     // AI POSTS
-     Route::post( '/ai/posts/generate',  [AIPostController::class, 'generate'])->middleware('throttle:ai-posts');
+    // AI POSTS
+    Route::post('/ai/posts/generate',  [AIPostController::class, 'generate'])->middleware('throttle:ai-posts');
 
+
+    //Reports
+    Route::post('/posts/{post}/reports', [ReportController::class, 'storePost']);
+    Route::post('/comments/{comment}/reports',  [ReportController::class, 'storeComment']);
 });
+ 

@@ -8,33 +8,41 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-#[Fillable(['user_id','post_id','content','parent_id'])]
+#[Fillable(['user_id', 'post_id', 'content', 'parent_id'])]
 class Comment extends Model
 {
-    
-public function user():BelongsTo
-{
- return $this->belongsTo(User::class);
-}
 
-public function post():BelongsTo
-{
- return $this->belongsTo(Post::class);
-}
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
-public function parent(): BelongsTo
-{
-    return $this->belongsTo(Comment::class, 'parent_id');
-}
+    public function post(): BelongsTo
+    {
+        return $this->belongsTo(Post::class);
+    }
 
-public function replies(): HasMany
-{
-    return $this->hasMany(Comment::class, 'parent_id');
-}
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Comment::class, 'parent_id');
+    }
 
-public function likes(): MorphMany
-{
-    return $this->morphMany(Like::class, 'likeable');
-}
+    public function replies(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'parent_id');
+    }
 
+    public function likes(): MorphMany
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
+
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(
+            Report::class,
+            'reportable'
+        );
+    }
 }

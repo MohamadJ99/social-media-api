@@ -13,6 +13,7 @@ use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\StoryController;
 use App\Http\Controllers\AI\AIPostController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\API\AdController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -114,5 +115,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     //Reports
     Route::post('/posts/{post}/reports', [ReportController::class, 'storePost']);
     Route::post('/comments/{comment}/reports',  [ReportController::class, 'storeComment']);
+
+    // Advertisements - Authenticated Users
+    Route::get('/ads', [AdController::class, 'index']);
+
+    // Advertisements - Admin Only
+    Route::middleware('admin')
+        ->prefix('admin/ads')
+        ->controller(AdController::class)
+        ->group(function () {
+            Route::get('/', 'adminIndex');
+            Route::post('/', 'store');
+            Route::get('/{ad}', 'show');
+            Route::patch('/{ad}', 'update');
+            Route::delete('/{ad}', 'destroy');
+        });
 });
- 

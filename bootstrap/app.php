@@ -23,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ],
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // Admin Middleware Alias
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+        ]);
+
+        // Redirect Guests
         $middleware->redirectGuestsTo(function (Request $request) {
             return null;
         });

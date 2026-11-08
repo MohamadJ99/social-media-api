@@ -14,6 +14,8 @@ use App\Http\Controllers\API\StoryController;
 use App\Http\Controllers\AI\AIPostController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\API\AdController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -116,6 +118,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/posts/{post}/reports', [ReportController::class, 'storePost']);
     Route::post('/comments/{comment}/reports',  [ReportController::class, 'storeComment']);
 
+    // Admin Reports
+    Route::prefix('admin/reports')
+        ->middleware('role:super_admin,admin,moderator')
+        ->controller(AdminReportController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{report}', 'show');
+        });
+
     // Advertisements - Authenticated Users
     Route::get('/ads', [AdController::class, 'index']);
 
@@ -129,5 +140,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
             Route::get('/{ad}', 'show');
             Route::patch('/{ad}', 'update');
             Route::delete('/{ad}', 'destroy');
+        });
+
+
+    // Admin Activity Logs
+    Route::prefix('admin/activity-logs')
+        ->middleware('role:super_admin,admin,moderator')
+        ->controller(ActivityLogController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{activityLog}', 'show');
         });
 });

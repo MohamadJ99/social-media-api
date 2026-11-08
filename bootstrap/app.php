@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Admin Middleware Alias
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
 
         // Redirect Guests

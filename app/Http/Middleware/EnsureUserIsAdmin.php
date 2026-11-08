@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\UserRole;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +13,15 @@ class EnsureUserIsAdmin
         Request $request,
         Closure $next
     ): Response {
-        if (!$request->user() || $request->user()->role !== 'admin') {
+        $user = $request->user();
+
+        if (
+            !$user ||
+            !in_array($user->role, [
+                UserRole::Admin->value,
+                UserRole::SuperAdmin->value,
+            ], true)
+        ) {
             return response()->json([
                 'message' => 'You are not authorized to access this resource.',
             ], 403);

@@ -125,6 +125,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         ->group(function () {
             Route::get('/', 'index');
             Route::get('/{report}', 'show');
+
+            Route::patch('/{report}/review', 'review');
+            Route::patch('/{report}/resolve', 'resolve');
+            Route::patch('/{report}/dismiss', 'dismiss');
         });
 
     // Advertisements - Authenticated Users

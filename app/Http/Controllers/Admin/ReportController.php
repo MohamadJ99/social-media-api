@@ -11,6 +11,9 @@ use App\Models\Report;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Enums\ReportStatus;
+use App\Http\Requests\Admin\ReviewReportRequest;
+use App\Services\ReportReviewService;
 
 class ReportController extends Controller
 {
@@ -109,6 +112,7 @@ class ReportController extends Controller
         return ReportResource::collection($reports);
     }
 
+
     public function show(Report $report): ReportResource
     {
         $report->load([
@@ -126,8 +130,61 @@ class ReportController extends Controller
                     ],
                 ]);
             },
+
+            'reviews' => function ($query) {
+                $query->orderBy('created_at')
+                    ->orderBy('id')
+                    ->with('reviewer:id,name,username,avatar');
+            },
         ]);
 
         return new ReportResource($report);
+    }
+
+
+
+    public function review(
+        ReviewReportRequest $request,
+        Report $report,
+        ReportReviewService $service
+    ): ReportResource {
+        $updated = $service->transition(
+            $report,
+            $request->user(),
+            ReportStatus::Reviewed,
+            $request->validated('note')
+        );
+
+        return new ReportResource($updated);
+    }
+
+    public function resolve(
+        ReviewReportRequest $request,
+        Report $report,
+        ReportReviewService $service
+    ): ReportResource {
+        $updated = $service->transition(
+            $report,
+            $request->user(),
+            ReportStatus::Resolved,
+            $request->validated('note')
+        );
+
+        return new ReportResource($updated);
+    }
+
+    public function dismiss(
+        ReviewReportRequest $request,
+        Report $report,
+        ReportReviewService $service
+    ): ReportResource {
+        $updated = $service->transition(
+            $report,
+            $request->user(),
+            ReportStatus::Dismissed,
+            $request->validated('note')
+        );
+
+        return new ReportResource($updated);
     }
 }

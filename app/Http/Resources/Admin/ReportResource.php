@@ -4,6 +4,7 @@ namespace App\Http\Resources\Admin;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,12 +27,7 @@ class ReportResource extends JsonResource
 
             'reporter' => $this->whenLoaded(
                 'user',
-                fn () => $this->user ? [
-                    'id' => $this->user->id,
-                    'name' => $this->user->name,
-                    'username' => $this->user->username,
-                    'avatar' => $this->user->avatar,
-                ] : null
+                fn () => $this->authorData($this->user)
             ),
 
             'reportable' => $this->whenLoaded(
@@ -74,10 +70,34 @@ class ReportResource extends JsonResource
                     return null;
                 }
             ),
+
+            'reviews' => $this->whenLoaded(
+                'reviews',
+                fn () => $this->reviews->map(
+                    fn ($review) => [
+                        'id' => $review->id,
+
+                        'previous_status' =>
+                            $review->previous_status->value,
+
+                        'new_status' =>
+                            $review->new_status->value,
+
+                        'note' => $review->note,
+
+                        'reviewer' => $this->authorData(
+                            $review->reviewer
+                        ),
+
+                        'created_at' =>
+                            $review->created_at?->toISOString(),
+                    ]
+                )
+            ),
         ];
     }
 
-    private function authorData($user): ?array
+    private function authorData(?User $user): ?array
     {
         if (!$user) {
             return null;

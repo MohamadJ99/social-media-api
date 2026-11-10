@@ -8,6 +8,7 @@ use App\Enums\ReportReason;
 use App\Enums\ReportStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable('user_id', 'reason', 'description')]
 class Report extends Model
@@ -28,5 +29,10 @@ class Report extends Model
     public function reportable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ReportReview::class);
     }
 }
